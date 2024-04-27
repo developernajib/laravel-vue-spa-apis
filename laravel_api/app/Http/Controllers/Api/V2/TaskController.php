@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TaskResource;
@@ -11,12 +11,17 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Task::class);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return TaskResource::collection(Task::all());
+        return TaskResource::collection(auth()->user()->tasks()->get());
     }
 
     /**
@@ -24,7 +29,7 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        $task = Task::create($request->validated());
+        $task = $request->user()->tasks()->create($request->validated());
         return TaskResource::make($task);
     }
 
